@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobPortal - Find Your Dream Job</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+        }
+        .job-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .job-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .section-title {
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .badge-job-type {
+            font-size: 0.8rem;
+        }
+        .application-status {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+        .status-applied { background-color: #6c757d; color: white; }
+        .status-under_review { background-color: #17a2b8; color: white; }
+        .status-shortlisted { background-color: #007bff; color: white; }
+        .status-rejected { background-color: #dc3545; color: white; }
+        .status-hired { background-color: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showSection('home')">
+                <i class="fas fa-briefcase me-2"></i>JobPortal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('home')">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('jobs')">Browse Jobs</a>
+                    </li>
+                </ul>
+                <div class="navbar-nav" id="authNav">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Alert Container -->
+    <div id="alertContainer" class="container mt-3"></div>
+
+    <!-- Home Section -->
+    <section id="homeSection">
+        <div class="hero-section text-center">
+            <div class="container">
+                <h1 class="display-4 mb-4">Find Your Dream Job Today</h1>
+                <p class="lead mb-4">Connect with top employers and discover opportunities that match your skills</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Job title, skills, or company">
+                            <input type="text" id="locationInput" class="form-control form-control-lg" placeholder="Location">
+                            <button class="btn btn-primary btn-lg" onclick="searchJobs()">
+                                <i class="fas fa-search"></i> Search Jobs
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="py-5">
+            <div class="container">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Smart Search</h3>
+                        <p>Find jobs that match your skills and preferences</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h3>Top Companies</h3>
+                        <p>Get hired by leading companies across various industries</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Career Growth</h3>
+                        <p>Discover opportunities that help you grow professionally</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-5 bg-light">
+            <div class="container">
+                <h2 class="text-center mb-5 section-title">Recent Job Openings</h2>
+                <div id="jobsContainer" class="row">
+                    <div class="col-12 text-center">
+                        <p>Loading jobs...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <!-- Jobs Section -->
+    <section id="jobsSection" style="display: none;">
+        <div class="container py-5">
+            <h2 class="section-title">Browse All Jobs</h2>
+            
+            <!-- Search and Filters -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" id="jobsSearchInput" class="form-control" placeholder="Search jobs...">
+                        <button class="btn btn-primary" onclick="loadAllJobs()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select id="jobTypeFilter" class="form-select" onchange="loadAllJobs()">
+                        <option value="">All Job Types</option>
+                        <option value="full_time">Full Time</option>
+                        <option value="part_time">Part Time</option>
+                        <option value="contract">Contract</option>
+                        <option value="internship">Internship</option>
+                        <option value="remote">Remote</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Jobs List -->
+            <div id="allJobsContainer" class="row">
+                <div class="col-12 text-center">
+                    <p>Loading jobs...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Job Detail Section -->
+    <section id="jobDetailSection" style="display: none;">
+        <div class="container py-5">
+            <button class="btn btn-secondary mb-3" onclick="showSection('jobs')">
+                <i class="fas fa-arrow-left"></i> Back to Jobs
+            </button>
+            <div id="jobDetailContent">
+                <!-- Job details will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Employer Dashboard Section -->
+    <section id="employerDashboard" style="display: none;">
+        <div class="container py-5">
+            <h2 class="section-title">Employer Dashboard</h2>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <button class="btn btn-success" onclick="showPostJobForm()">
+                        <i class="fas fa-plus"></i> Post New Job
+                    </button>
+                </div>
+            </div>
+
+                        <!-- Employer Profile Info -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Company Profile</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleEditEmployerProfile()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- View Mode -->
+                    <div id="employerProfileView">
+                        <div id="employerProfileInfo">
+                            <!-- Employer profile info will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Edit Mode -->
+                    <div id="employerProfileEdit" style="display: none;">
+                        <form id="employerProfileEditForm">
+                            <div class="mb-3">
+                                <label class="form-label">Company Name *</label>
+                                <input type="text" class="form-control" id="editCompanyName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Your Position *</label>
+                                <input type="text" class="form-control" id="editPosition" 
+                                       placeholder="e.g., HR Manager, CEO, Recruiter" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Company Website</label>
+                                <input type="url" class="form-control" id="editCompanyWebsite" 
+                                       placeholder="https://yourcompany.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Company Description</label>
+                                <textarea class="form-control" id="editCompanyDescription" rows="4" 
+                                          placeholder="Describe your company, culture, mission..."></textarea>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleEditEmployerProfile()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Job Form -->
+            <div id="postJobForm" style="display: none;" class="card mb-4">
+                <div class="card-header">
+                    <h5>Post New Job</h5>
+                </div>
+                <div class="card-body">
+                    <form id="jobForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Job Title *</label>
+                                    <input type="text" class="form-control" id="jobTitle" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Location *</label>
+                                    <input type="text" class="form-control" id="jobLocation" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Job Type *</label>
+                                    <select class="form-select" id="jobType" required>
+                                        <option value="">Select Type</option>
+                                        <option value="full_time">Full Time</option>
+                                        <option value="part_time">Part Time</option>
+                                        <option value="contract">Contract</option>
+                                        <option value="internship">Internship</option>
+                                        <option value="remote">Remote</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Salary Range</label>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="number" class="form-control" id="salaryMin" placeholder="Min Salary">
+                                        </div>
+                                        <div class="col">
+                                            <input type="number" class="form-control" id="salaryMax" placeholder="Max Salary">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Experience Required</label>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="number" class="form-control" id="experienceMin" placeholder="Min Years" value="0">
+                                        </div>
+                                        <div class="col">
+                                            <input type="number" class="form-control" id="experienceMax" placeholder="Max Years" value="5">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Vacancies</label>
+                                    <input type="number" class="form-control" id="jobVacancies" value="1" min="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Job Description *</label>
+                            <textarea class="form-control" id="jobDescription" rows="4" required placeholder="Describe the job responsibilities, company culture, etc."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Requirements *</label>
+                            <textarea class="form-control" id="jobRequirements" rows="3" required placeholder="List the required qualifications and experience"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Skills Required *</label>
+                            <textarea class="form-control" id="jobSkills" rows="2" required placeholder="List required skills (comma separated)"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Application Deadline</label>
+                            <input type="date" class="form-control" id="jobDeadline" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Job</button>
+                        <button type="button" class="btn btn-secondary" onclick="hidePostJobForm()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Posted Jobs -->
+            <h4 class="mt-5">Your Posted Jobs</h4>
+            <div id="postedJobsContainer">
+                <!-- Posted jobs will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Job Applications Management Section -->
+    <section id="jobApplicationsSection" style="display: none;">
+        <div class="container py-5">
+            <button class="btn btn-secondary mb-3" onclick="showSection('employerDashboard')">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+            <h2 class="section-title" id="applicationsJobTitle">Job Applications</h2>
+            
+            <div id="applicationsList">
+                <!-- Applications will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Job Seeker Dashboard Section -->
+    <section id="jobSeekerDashboard" style="display: none;">
+        <div class="container py-5">
+            <h2 class="section-title">Job Seeker Dashboard</h2>
+            
+            <!-- Profile Info -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Your Profile</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleEditProfile()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- View Mode -->
+                    <div id="profileView">
+                        <div id="profileInfo">
+                            <!-- Profile info will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Edit Mode -->
+                    <div id="profileEdit" style="display: none;">
+                        <form id="profileEditForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">First Name *</label>
+                                        <input type="text" class="form-control" id="editFirstName" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Last Name *</label>
+                                        <input type="text" class="form-control" id="editLastName" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="editPhoneNumber">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Skills</label>
+                                <input type="text" class="form-control" id="editSkills" 
+                                       placeholder="e.g., Python, JavaScript, React, Django">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Experience (years)</label>
+                                        <input type="number" class="form-control" id="editExperience" min="0" max="50">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Location</label>
+                                        <input type="text" class="form-control" id="editLocation" 
+                                               placeholder="e.g., New York, NY">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Salary (₹)</label>
+                                        <input type="number" class="form-control" id="editCurrentSalary" 
+                                               placeholder="Current annual salary">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Expected Salary (₹)</label>
+                                        <input type="number" class="form-control" id="editExpectedSalary" 
+                                               placeholder="Expected annual salary">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Education</label>
+                                <textarea class="form-control" id="editEducation" rows="3" 
+                                          placeholder="Your educational qualifications, degrees, certifications..."></textarea>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleEditProfile()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications -->
+            <h4>Your Job Applications</h4>
+            <div id="applicationsContainer">
+                <!-- Applications will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login to JobPortal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Join JobPortal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="firstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phoneNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">I am a</label>
+                            <select class="form-select" id="userType" required>
+                                <option value="">Select type</option>
+                                <option value="job_seeker">Job Seeker</option>
+                                <option value="employer">Employer</option>
+                            </select>
+                        </div>
+                        <div id="employerFields" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Company Name</label>
+                                <input type="text" class="form-control" id="companyName" required>
+                            </div>
+                        </div>
+                        <div id="jobSeekerFields" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Skills</label>
+                                <input type="text" class="form-control" id="skills" placeholder="e.g., Python, JavaScript, React">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Experience (years)</label>
+                                <input type="number" class="form-control" id="experience" value="0">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentUser = null;
+        let accessToken = localStorage.getItem('accessToken');
+        let currentJobId = null;
+        let currentJobApplications = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default deadline to 30 days from now
+            const deadline = new Date();
+            deadline.setDate(deadline.getDate() + 30);
+            document.getElementById('jobDeadline').value = deadline.toISOString().split('T')[0];
+            
+            checkAuth();
+            loadRecentJobs();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Handle user type selection
+            document.getElementById('userType').addEventListener('change', function() {
+                const userType = this.value;
+                document.getElementById('employerFields').style.display = 
+                    userType === 'employer' ? 'block' : 'none';
+                document.getElementById('jobSeekerFields').style.display = 
+                    userType === 'job_seeker' ? 'block' : 'none';
+            });
+
+            // Login form handler
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await loginUser();
+            });
+
+            // Register form handler
+            document.getElementById('registerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await registerUser();
+            });
+
+            // Job form handler
+            document.getElementById('jobForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await postJob();
+            });
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.getElementById('homeSection').style.display = 'none';
+            document.getElementById('jobsSection').style.display = 'none';
+            document.getElementById('jobDetailSection').style.display = 'none';
+            document.getElementById('employerDashboard').style.display = 'none';
+            document.getElementById('jobApplicationsSection').style.display = 'none';
+            document.getElementById('jobSeekerDashboard').style.display = 'none';
+
+            // Show selected section
+            if (sectionName === 'home') {
+                document.getElementById('homeSection').style.display = 'block';
+                loadRecentJobs();
+            } else if (sectionName === 'jobs') {
+                document.getElementById('jobsSection').style.display = 'block';
+                loadAllJobs();
+            } else if (sectionName === 'employerDashboard') {
+                document.getElementById('employerDashboard').style.display = 'block';
+                loadEmployerDashboard();
+            } else if (sectionName === 'jobSeekerDashboard') {
+                document.getElementById('jobSeekerDashboard').style.display = 'block';
+                loadJobSeekerDashboard();
+            } else if (sectionName === 'jobApplicationsSection') {
+                document.getElementById('jobApplicationsSection').style.display = 'block';
+            }
+        }
+
+        function showLoginModal() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+        }
+
+        function showRegisterModal() {
+            const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+            modal.show();
+        }
+
+        async function checkAuth() {
+            if (!accessToken) {
+                updateNavigation(false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/profile/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentUser = userData;
+                    updateNavigation(true);
+                } else {
+                    localStorage.removeItem('accessToken');
+                    accessToken = null;
+                    updateNavigation(false);
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                localStorage.removeItem('accessToken');
+                accessToken = null;
+                updateNavigation(false);
+            }
+        }
+
+        function updateNavigation(isLoggedIn) {
+            const authNav = document.getElementById('authNav');
+            
+            if (isLoggedIn && currentUser) {
+                authNav.innerHTML = `
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>${currentUser.first_name} ${currentUser.last_name}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="showDashboard()">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="logout()">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                `;
+            } else {
+                authNav.innerHTML = `
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showLoginModal()">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showRegisterModal()">Register</a>
+                    </li>
+                `;
+            }
+        }
+
+        function showDashboard() {
+            if (currentUser.user_type === 'employer') {
+                showSection('employerDashboard');
+            } else {
+                showSection('jobSeekerDashboard');
+            }
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('accessToken', data.access);
+                    accessToken = data.access;
+                    currentUser = data.user;
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    updateNavigation(true);
+                    showAlert('Login successful!', 'success');
+                    
+                    // Clear form
+                    document.getElementById('loginForm').reset();
+                } else {
+                    showAlert(data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAlert('An error occurred during login', 'error');
+            }
+        }
+
+        async function registerUser() {
+            const formData = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value,
+                phone_number: document.getElementById('phoneNumber').value,
+                user_type: document.getElementById('userType').value,
+            };
+
+            if (formData.user_type === 'employer') {
+                formData.company_name = document.getElementById('companyName').value;
+            } else if (formData.user_type === 'job_seeker') {
+                formData.skills = document.getElementById('skills').value;
+                formData.experience = parseInt(document.getElementById('experience').value);
+            }
+
+            try {
+                const response = await fetch('/api/auth/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('accessToken', data.access);
+                    accessToken = data.access;
+                    currentUser = data.user;
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                    updateNavigation(true);
+                    showAlert('Registration successful!', 'success');
+                    
+                    // Clear form
+                    document.getElementById('registerForm').reset();
+                    document.getElementById('employerFields').style.display = 'none';
+                    document.getElementById('jobSeekerFields').style.display = 'none';
+                } else {
+                    showAlert('Registration failed: ' + (data.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showAlert('An error occurred during registration', 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('accessToken');
+            accessToken = null;
+            currentUser = null;
+            updateNavigation(false);
+            showSection('home');
+            showAlert('Logged out successfully', 'success');
+        }
+
+        async function loadRecentJobs() {
+            try {
+                const response = await fetch('/api/jobs/');
+                const jobs = await response.json();
+                
+                const container = document.getElementById('jobsContainer');
+                if (jobs.length > 0) {
+                    container.innerHTML = jobs.slice(0, 6).map(job => `
+                        <div class="col-md-4 mb-4">
+                            <div class="card job-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">${job.title}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">${job.company_name}</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt"></i> ${job.location}
+                                            <br>
+                                            <span class="badge bg-primary badge-job-type">${job.job_type.replace('_', ' ')}</span>
+                                            <br>
+                                            ${job.salary_min ? `<i class="fas fa-money-bill-wave"></i> $${job.salary_min} - $${job.salary_max}` : ''}
+                                        </small>
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-primary btn-sm" onclick="viewJob(${job.id})">
+                                        View Details
+                                    </button>
+                                    ${currentUser && currentUser.user_type === 'job_seeker' ? 
+                                      `<button class="btn btn-success btn-sm" onclick="applyForJob(${job.id})">
+                                        Apply Now
+                                       </button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="col-12 text-center"><p>No jobs available at the moment.</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                document.getElementById('jobsContainer').innerHTML = '<div class="col-12 text-center"><p>Error loading jobs. Please try again later.</p></div>';
+            }
+        }
+
+        async function loadAllJobs() {
+            try {
+                const search = document.getElementById('jobsSearchInput').value;
+                const jobType = document.getElementById('jobTypeFilter').value;
+                
+                let url = '/api/jobs/';
+                const params = new URLSearchParams();
+                
+                if (search) params.append('search', search);
+                if (jobType) params.append('job_type', jobType);
+                
+                if (params.toString()) {
+                    url += '?' + params.toString();
+                }
+
+                const response = await fetch(url);
+                const jobs = await response.json();
+                
+                const container = document.getElementById('allJobsContainer');
+                if (jobs.length > 0) {
+                    container.innerHTML = jobs.map(job => `
+                        <div class="col-md-6 mb-4">
+                            <div class="card job-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">${job.title}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">${job.company_name}</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt"></i> ${job.location}
+                                            <br>
+                                            <span class="badge bg-primary badge-job-type">${job.job_type.replace('_', ' ')}</span>
+                                            <br>
+                                            Experience: ${job.experience_min} - ${job.experience_max} years
+                                            <br>
+                                            ${job.salary_min ? `<i class="fas fa-money-bill-wave"></i> $${job.salary_min} - $${job.salary_max}` : 'Salary: Not disclosed'}
+                                        </small>
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-primary btn-sm" onclick="viewJob(${job.id})">
+                                        View Details
+                                    </button>
+                                    ${currentUser && currentUser.user_type === 'job_seeker' ? 
+                                      `<button class="btn btn-success btn-sm" onclick="applyForJob(${job.id})">
+                                        Apply Now
+                                       </button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="col-12 text-center"><p>No jobs found matching your criteria.</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                document.getElementById('allJobsContainer').innerHTML = '<div class="col-12 text-center"><p>Error loading jobs. Please try again later.</p></div>';
+            }
+        }
+
+        async function viewJob(jobId) {
+            try {
+                const response = await fetch(`/api/jobs/${jobId}/`);
+                const job = await response.json();
+
+                if (response.ok) {
+                    currentJobId = jobId;
+                    document.getElementById('jobDetailContent').innerHTML = `
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>${job.title}</h3>
+                                <h5 class="text-muted">${job.company_name}</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <p><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> ${job.location}</p>
+                                        <p><strong><i class="fas fa-briefcase"></i> Job Type:</strong> ${job.job_type.replace('_', ' ')}</p>
+                                        <p><strong><i class="fas fa-chart-line"></i> Experience:</strong> ${job.experience_min} - ${job.experience_max} years</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong><i class="fas fa-money-bill-wave"></i> Salary:</strong> ${job.salary_min ? `$${job.salary_min} - $${job.salary_max}` : 'Not disclosed'}</p>
+                                        <p><strong><i class="fas fa-users"></i> Vacancies:</strong> ${job.vacancies}</p>
+                                        <p><strong><i class="fas fa-calendar-alt"></i> Deadline:</strong> ${new Date(job.application_deadline).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                
+                                <h5>Company Description</h5>
+                                <p>${job.company_description}</p>
+                                
+                                <h5>Job Description</h5>
+                                <p>${job.description}</p>
+                                
+                                <h5>Requirements</h5>
+                                <p>${job.requirements}</p>
+                                
+                                <h5>Skills Required</h5>
+                                <p>${job.skills_required}</p>
+                                
+                                <div class="mt-4">
+                                    ${currentUser && currentUser.user_type === 'job_seeker' ? 
+                                      `<button class="btn btn-success btn-lg" onclick="applyForJob(${jobId})">
+                                        <i class="fas fa-paper-plane"></i> Apply for this Job
+                                       </button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    showSection('jobDetailSection');
+                } else {
+                    showAlert('Error loading job details', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading job:', error);
+                showAlert('Error loading job details', 'error');
+            }
+        }
+
+        async function applyForJob(jobId) {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            if (currentUser.user_type !== 'job_seeker') {
+                showAlert('Only job seekers can apply for jobs', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/applications/apply/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        cover_letter: 'I am very interested in this position and believe my skills are a perfect match for your requirements. I look forward to the opportunity to contribute to your team.'
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Application submitted successfully!', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showAlert(errorData.error || 'Failed to submit application', 'error');
+                }
+            } catch (error) {
+                showAlert('Error submitting application', 'error');
+            }
+        }
+
+               function searchJobs() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const location = document.getElementById('locationInput').value;
+            
+            // Show jobs section with filtered results
+            showSection('jobs');
+            
+            // Set search values and trigger load
+            document.getElementById('jobsSearchInput').value = searchTerm;
+            if (location) {
+                // For location filtering, we'll need to modify the loadAllJobs function
+                // For now, just use search input for both
+                document.getElementById('jobsSearchInput').value = `${searchTerm} ${location}`.trim();
+            }
+            
+            loadAllJobs();
+        }
+
+        async function loadAllJobs() {
+            try {
+                const search = document.getElementById('jobsSearchInput').value;
+                const jobType = document.getElementById('jobTypeFilter').value;
+                
+                let url = '/api/jobs/';
+                const params = new URLSearchParams();
+                
+                if (search) params.append('search', search);
+                if (jobType) params.append('job_type', jobType);
+                
+                if (params.toString()) {
+                    url += '?' + params.toString();
+                }
+
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const jobs = await response.json();
+                
+                const container = document.getElementById('allJobsContainer');
+                if (jobs.length > 0) {
+                    container.innerHTML = jobs.map(job => `
+                        <div class="col-md-6 mb-4">
+                            <div class="card job-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">${job.title}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">${job.company_name}</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt"></i> ${job.location}
+                                            <br>
+                                            <span class="badge bg-primary badge-job-type">${job.job_type ? job.job_type.replace('_', ' ') : 'Not specified'}</span>
+                                            <br>
+                                            Experience: ${job.experience_min || 0} - ${job.experience_max || 0} years
+                                            <br>
+                                            ${job.salary_min ? `<i class="fas fa-money-bill-wave"></i> $${job.salary_min} - $${job.salary_max}` : 'Salary: Not disclosed'}
+                                        </small>
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-primary btn-sm" onclick="viewJob(${job.id})">
+                                        View Details
+                                    </button>
+                                    ${currentUser && currentUser.user_type === 'job_seeker' ? 
+                                      `<button class="btn btn-success btn-sm" onclick="applyForJob(${job.id})">
+                                        Apply Now
+                                       </button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="col-12 text-center"><p>No jobs found matching your criteria.</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                document.getElementById('allJobsContainer').innerHTML = `
+                    <div class="col-12 text-center">
+                        <p>Error loading jobs. Please try again later.</p>
+                        <small class="text-muted">Error: ${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+
+        async function viewJob(jobId) {
+            try {
+                console.log('Loading job details for ID:', jobId);
+                const response = await fetch(`/api/jobs/${jobId}/`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const job = await response.json();
+                console.log('Job data received:', job);
+
+                if (job.error) {
+                    showAlert('Error: ' + job.error, 'error');
+                    return;
+                }
+
+                currentJobId = jobId;
+                
+                // Create the job detail HTML
+                const jobDetailHTML = `
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>${job.title || 'No title'}</h3>
+                            <h5 class="text-muted">${job.company_name || 'No company'}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <p><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> ${job.location || 'Not specified'}</p>
+                                    <p><strong><i class="fas fa-briefcase"></i> Job Type:</strong> ${job.job_type ? job.job_type.replace('_', ' ') : 'Not specified'}</p>
+                                    <p><strong><i class="fas fa-chart-line"></i> Experience:</strong> ${job.experience_min || 0} - ${job.experience_max || 0} years</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong><i class="fas fa-money-bill-wave"></i> Salary:</strong> ${job.salary_min ? `₹${job.salary_min} - ₹${job.salary_max}` : 'Not disclosed'}</p>
+                                    <p><strong><i class="fas fa-users"></i> Vacancies:</strong> ${job.vacancies || 1}</p>
+                                    <p><strong><i class="fas fa-calendar-alt"></i> Deadline:</strong> ${job.application_deadline ? new Date(job.application_deadline).toLocaleDateString() : 'Not specified'}</p>
+                                </div>
+                            </div>
+                            
+                            ${job.company_description ? `
+                            <h5>Company Description</h5>
+                            <p>${job.company_description}</p>
+                            ` : ''}
+                            
+                            <h5>Job Description</h5>
+                            <p>${job.description || 'No description provided'}</p>
+                            
+                            ${job.requirements ? `
+                            <h5>Requirements</h5>
+                            <p>${job.requirements}</p>
+                            ` : ''}
+                            
+                            ${job.skills_required ? `
+                            <h5>Skills Required</h5>
+                            <p>${job.skills_required}</p>
+                            ` : ''}
+                            
+                            <div class="mt-4">
+                                ${currentUser && currentUser.user_type === 'job_seeker' ? 
+                                  `<button class="btn btn-success btn-lg" onclick="applyForJob(${jobId})">
+                                    <i class="fas fa-paper-plane"></i> Apply for this Job
+                                   </button>` : 
+                                  currentUser ? 
+                                  `<p class="text-muted"><i>Only job seekers can apply for jobs</i></p>` :
+                                  `<button class="btn btn-primary btn-lg" onclick="showLoginModal()">
+                                    <i class="fas fa-sign-in-alt"></i> Login to Apply
+                                   </button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Set the content
+                document.getElementById('jobDetailContent').innerHTML = jobDetailHTML;
+                
+                // DEBUG: Check if section exists
+                const section = document.getElementById('jobDetailSection');
+                console.log('Job Detail Section element:', section);
+                
+                // Hide all sections first
+                document.getElementById('homeSection').style.display = 'none';
+                document.getElementById('jobsSection').style.display = 'none';
+                document.getElementById('employerDashboard').style.display = 'none';
+                document.getElementById('jobApplicationsSection').style.display = 'none';
+                document.getElementById('jobSeekerDashboard').style.display = 'none';
+                
+                // Show job detail section directly
+                section.style.display = 'block';
+                console.log('Job detail section should be visible now');
+                
+                // Scroll to top to make sure it's visible
+                window.scrollTo(0, 0);
+                
+            } catch (error) {
+                console.error('Error loading job:', error);
+                showAlert('Error loading job details: ' + error.message, 'error');
+            }
+        }
+
+        async function applyForJob(jobId) {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            if (currentUser.user_type !== 'job_seeker') {
+                showAlert('Only job seekers can apply for jobs', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/applications/apply/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        cover_letter: 'I am very interested in this position and believe my skills are a perfect match for your requirements. I look forward to the opportunity to contribute to your team.'
+                    })
+                });
+
+                if (response.ok) {
+                    showAlert('Application submitted successfully!', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showAlert(errorData.error || 'Failed to submit application', 'error');
+                }
+            } catch (error) {
+                showAlert('Error submitting application', 'error');
+            }
+        }
+
+        // Employer Dashboard Functions
+        async function loadEmployerDashboard() {
+            await loadPostedJobs();
+        }
+
+        async function loadPostedJobs() {
+            try {
+                const response = await fetch('/api/jobs/employer/my-jobs/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const jobs = await response.json();
+                    const container = document.getElementById('postedJobsContainer');
+                    
+                    if (jobs.length > 0) {
+                        container.innerHTML = jobs.map(job => `
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h5 class="card-title">${job.title}</h5>
+                                            <p class="card-text">
+                                                <strong>Company:</strong> ${job.company_name}<br>
+                                                <strong>Location:</strong> ${job.location}<br>
+                                                <strong>Type:</strong> ${job.job_type.replace('_', ' ')}<br>
+                                                <strong>Salary:</strong> ${job.salary_min ? `$${job.salary_min} - $${job.salary_max}` : 'Not disclosed'}<br>
+                                                <strong>Status:</strong> <span class="badge ${job.is_active ? 'bg-success' : 'bg-secondary'}">${job.is_active ? 'Active' : 'Inactive'}</span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <p><strong>Applications:</strong> ${job.application_count}</p>
+                                            <button class="btn btn-primary btn-sm" onclick="viewJobApplications(${job.id}, '${job.title}')">
+                                                <i class="fas fa-users"></i> View Applications
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        container.innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> 
+                                You haven't posted any jobs yet. Start by posting your first job!
+                            </div>
+                        `;
+                    }
+                } else {
+                    container.innerHTML = '<div class="alert alert-danger">Error loading your jobs</div>';
+                }
+            } catch (error) {
+                console.error('Error loading posted jobs:', error);
+                document.getElementById('postedJobsContainer').innerHTML = '<div class="alert alert-danger">Error loading your jobs</div>';
+            }
+        }
+
+        function showPostJobForm() {
+            document.getElementById('postJobForm').style.display = 'block';
+        }
+
+        function hidePostJobForm() {
+            document.getElementById('postJobForm').style.display = 'none';
+            document.getElementById('jobForm').reset();
+            
+            // Reset deadline to 30 days from now
+            const deadline = new Date();
+            deadline.setDate(deadline.getDate() + 30);
+            document.getElementById('jobDeadline').value = deadline.toISOString().split('T')[0];
+        }
+
+        async function postJob() {
+            if (!accessToken) {
+                showAlert('Please login to post jobs', 'error');
+                return;
+            }
+
+            const jobData = {
+                title: document.getElementById('jobTitle').value,
+                description: document.getElementById('jobDescription').value,
+                requirements: document.getElementById('jobRequirements').value,
+                skills_required: document.getElementById('jobSkills').value,
+                location: document.getElementById('jobLocation').value,
+                job_type: document.getElementById('jobType').value,
+                salary_min: document.getElementById('salaryMin').value || null,
+                salary_max: document.getElementById('salaryMax').value || null,
+                experience_min: parseInt(document.getElementById('experienceMin').value) || 0,
+                experience_max: parseInt(document.getElementById('experienceMax').value) || 5,
+                vacancies: parseInt(document.getElementById('jobVacancies').value) || 1,
+                application_deadline: document.getElementById('jobDeadline').value
+            };
+
+            try {
+                const response = await fetch('/api/jobs/post/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    body: JSON.stringify(jobData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('Job posted successfully!', 'success');
+                    hidePostJobForm();
+                    loadPostedJobs(); // Refresh the jobs list
+                } else {
+                    showAlert('Error posting job: ' + (data.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showAlert('Error posting job', 'error');
+            }
+        }
+
+        async function viewJobApplications(jobId, jobTitle) {
+            try {
+                const response = await fetch(`/api/applications/job/${jobId}/applications/`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const applications = await response.json();
+                    currentJobApplications = applications;
+                    
+                    document.getElementById('applicationsJobTitle').textContent = `Applications for: ${jobTitle}`;
+                    
+                    const container = document.getElementById('applicationsList');
+                    if (applications.length > 0) {
+                        container.innerHTML = applications.map(app => `
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h5>${app.applicant_name}</h5>
+                                            <p class="text-muted">${app.applicant_email}</p>
+                                            <p><strong>Skills:</strong> ${app.applicant_skills || 'Not specified'}</p>
+                                            <p><strong>Experience:</strong> ${app.applicant_experience} years</p>
+                                            <p><strong>Applied:</strong> ${new Date(app.applied_date).toLocaleDateString()}</p>
+                                            <p><strong>Cover Letter:</strong></p>
+                                            <p>${app.cover_letter || 'No cover letter provided'}</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label"><strong>Current Status:</strong></label>
+                                                <span class="application-status status-${app.status}">${app.status.replace('_', ' ')}</span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Update Status:</label>
+                                                <select class="form-select" id="statusSelect-${app.id}">
+                                                    <option value="applied" ${app.status === 'applied' ? 'selected' : ''}>Applied</option>
+                                                    <option value="under_review" ${app.status === 'under_review' ? 'selected' : ''}>Under Review</option>
+                                                    <option value="shortlisted" ${app.status === 'shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                                                    <option value="rejected" ${app.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                                                    <option value="hired" ${app.status === 'hired' ? 'selected' : ''}>Hired</option>
+                                                </select>
+                                            </div>
+                                            <button class="btn btn-primary w-100" onclick="updateApplicationStatus(${app.id})">
+                                                Update Status
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        container.innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> 
+                                No applications received for this job yet.
+                            </div>
+                        `;
+                    }
+                    
+                    showSection('jobApplicationsSection');
+                } else {
+                    showAlert('Error loading applications', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                showAlert('Error loading applications', 'error');
+            }
+        }
+
+        async function updateApplicationStatus(applicationId) {
+            const newStatus = document.getElementById(`statusSelect-${applicationId}`).value;
+            
+            try {
+                const response = await fetch(`/api/applications/${applicationId}/update-status/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('Application status updated successfully!', 'success');
+                    // Refresh the applications list
+                    const jobId = currentJobApplications[0]?.job_id;
+                    if (jobId) {
+                        // Reload the current view
+                        viewJobApplications(jobId, document.getElementById('applicationsJobTitle').textContent.replace('Applications for: ', ''));
+                    }
+                } else {
+                    showAlert('Error updating status: ' + (data.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showAlert('Error updating application status', 'error');
+            }
+        }
+
+        // Job Seeker Dashboard Functions
+        async function loadJobSeekerDashboard() {
+            await loadProfileInfo();
+            await loadApplications();
+        }
+
+        async function loadProfileInfo() {
+            try {
+                const response = await fetch('/api/auth/profile/jobseeker/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const profile = await response.json();
+                    document.getElementById('profileInfo').innerHTML = `
+                        <p><strong>Skills:</strong> ${profile.skills || 'Not specified'}</p>
+                        <p><strong>Experience:</strong> ${profile.experience || 0} years</p>
+                        <p><strong>Education:</strong> ${profile.education || 'Not specified'}</p>
+                        <p><strong>Current Salary:</strong> ${profile.current_salary ? '$' + profile.current_salary : 'Not specified'}</p>
+                        <p><strong>Expected Salary:</strong> ${profile.expected_salary ? '$' + profile.expected_salary : 'Not specified'}</p>
+                        <p><strong>Location:</strong> ${profile.location || 'Not specified'}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        async function loadApplications() {
+            try {
+                const response = await fetch('/api/applications/my-applications/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const applications = await response.json();
+                    const container = document.getElementById('applicationsContainer');
+                    
+                    if (applications.length > 0) {
+                        container.innerHTML = applications.map(app => `
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">${app.job_title}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">${app.company_name}</h6>
+                                    <p class="card-text">
+                                        <strong>Applied:</strong> ${new Date(app.applied_date).toLocaleDateString()}
+                                        <br>
+                                        <strong>Status:</strong> <span class="application-status status-${app.status}">${app.status.replace('_', ' ')}</span>
+                                    </p>
+                                    ${app.cover_letter ? `<p><strong>Cover Letter:</strong> ${app.cover_letter}</p>` : ''}
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        container.innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> 
+                                You haven't applied to any jobs yet. Start browsing jobs to apply!
+                            </div>
+                        `;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading applications:', error);
+            }
+        }
+
+        function updateProfile() {
+            showAlert('Profile update feature will be implemented soon!', 'info');
+        }
+
+                // Profile Management Functions
+        let isEditingProfile = false;
+        let isEditingEmployerProfile = false;
+
+        function toggleEditProfile() {
+            const viewMode = document.getElementById('profileView');
+            const editMode = document.getElementById('profileEdit');
+            
+            if (!isEditingProfile) {
+                // Switch to edit mode - load current data into form
+                loadProfileDataIntoForm();
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+                isEditingProfile = true;
+            } else {
+                // Switch back to view mode
+                viewMode.style.display = 'block';
+                editMode.style.display = 'none';
+                isEditingProfile = false;
+            }
+        }
+
+        function toggleEditEmployerProfile() {
+            const viewMode = document.getElementById('employerProfileView');
+            const editMode = document.getElementById('employerProfileEdit');
+            
+            if (!isEditingEmployerProfile) {
+                // Switch to edit mode - load current data into form
+                loadEmployerProfileDataIntoForm();
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+                isEditingEmployerProfile = true;
+            } else {
+                // Switch back to view mode
+                viewMode.style.display = 'block';
+                editMode.style.display = 'none';
+                isEditingEmployerProfile = false;
+            }
+        }
+
+        function loadProfileDataIntoForm() {
+            // Load basic user info
+            document.getElementById('editFirstName').value = currentUser.first_name || '';
+            document.getElementById('editLastName').value = currentUser.last_name || '';
+            document.getElementById('editPhoneNumber').value = currentUser.phone_number || '';
+            
+            // Profile data will be loaded when the profile is fetched
+        }
+
+        function loadEmployerProfileDataIntoForm() {
+            // Employer profile data will be loaded when the profile is fetched
+        }
+
+        // Update the loadProfileInfo function to include form data loading
+        async function loadProfileInfo() {
+            try {
+                const response = await fetch('/api/auth/profile/jobseeker/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const profile = await response.json();
+                    
+                    // Update view mode display
+                    document.getElementById('profileInfo').innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Name:</strong> ${currentUser.first_name} ${currentUser.last_name}</p>
+                                <p><strong>Email:</strong> ${currentUser.email}</p>
+                                <p><strong>Phone:</strong> ${currentUser.phone_number || 'Not specified'}</p>
+                                <p><strong>Skills:</strong> ${profile.skills || 'Not specified'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Experience:</strong> ${profile.experience || 0} years</p>
+                                <p><strong>Education:</strong> ${profile.education || 'Not specified'}</p>
+                                <p><strong>Current Salary:</strong> ${profile.current_salary ? '₹' + profile.current_salary : 'Not specified'}</p>
+                                <p><strong>Expected Salary:</strong> ${profile.expected_salary ? '₹' + profile.expected_salary : 'Not specified'}</p>
+                                <p><strong>Location:</strong> ${profile.location || 'Not specified'}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Also load data into edit form if it's open
+                    if (isEditingProfile) {
+                        document.getElementById('editSkills').value = profile.skills || '';
+                        document.getElementById('editExperience').value = profile.experience || 0;
+                        document.getElementById('editEducation').value = profile.education || '';
+                        document.getElementById('editCurrentSalary').value = profile.current_salary || '';
+                        document.getElementById('editExpectedSalary').value = profile.expected_salary || '';
+                        document.getElementById('editLocation').value = profile.location || '';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Add employer profile loading
+        async function loadEmployerProfileInfo() {
+            try {
+                const response = await fetch('/api/auth/profile/employer/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const profile = await response.json();
+                    
+                    // Update view mode display
+                    document.getElementById('employerProfileInfo').innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Company Name:</strong> ${profile.company_name || 'Not specified'}</p>
+                                <p><strong>Your Position:</strong> ${profile.position || 'Not specified'}</p>
+                                <p><strong>Website:</strong> ${profile.company_website || 'Not specified'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Company Description:</strong></p>
+                                <p>${profile.company_description || 'No description provided'}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Also load data into edit form if it's open
+                    if (isEditingEmployerProfile) {
+                        document.getElementById('editCompanyName').value = profile.company_name || '';
+                        document.getElementById('editPosition').value = profile.position || '';
+                        document.getElementById('editCompanyWebsite').value = profile.company_website || '';
+                        document.getElementById('editCompanyDescription').value = profile.company_description || '';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading employer profile:', error);
+            }
+        }
+
+        // Update profile form submission
+        document.getElementById('profileEditForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await updateProfile();
+        });
+
+        // Employer profile form submission
+        document.getElementById('employerProfileEditForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await updateEmployerProfile();
+        });
+
+        async function updateProfile() {
+            try {
+                // Update basic user info
+                const userResponse = await fetch('/api/auth/profile/update/', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    body: JSON.stringify({
+                        first_name: document.getElementById('editFirstName').value,
+                        last_name: document.getElementById('editLastName').value,
+                        phone_number: document.getElementById('editPhoneNumber').value
+                    })
+                });
+
+                const userData = await userResponse.json();
+
+                if (!userResponse.ok) {
+                    throw new Error(userData.error || 'Failed to update user profile');
+                }
+
+                // Update job seeker profile
+                const profileResponse = await fetch('/api/auth/profile/jobseeker/update/', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    body: JSON.stringify({
+                        skills: document.getElementById('editSkills').value,
+                        experience: parseInt(document.getElementById('editExperience').value) || 0,
+                        education: document.getElementById('editEducation').value,
+                        current_salary: document.getElementById('editCurrentSalary').value ? parseInt(document.getElementById('editCurrentSalary').value) : null,
+                        expected_salary: document.getElementById('editExpectedSalary').value ? parseInt(document.getElementById('editExpectedSalary').value) : null,
+                        location: document.getElementById('editLocation').value
+                    })
+                });
+
+                const profileData = await profileResponse.json();
+
+                if (!profileResponse.ok) {
+                    throw new Error(profileData.error || 'Failed to update job seeker profile');
+                }
+
+                // Update current user data
+                currentUser = userData.user;
+                
+                showAlert('Profile updated successfully!', 'success');
+                toggleEditProfile(); // Switch back to view mode
+                loadProfileInfo(); // Refresh the profile display
+
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showAlert('Error updating profile: ' + error.message, 'error');
+            }
+        }
+
+        async function updateEmployerProfile() {
+            try {
+                // Update basic user info
+                const userResponse = await fetch('/api/auth/profile/update/', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    body: JSON.stringify({
+                        first_name: currentUser.first_name, // Keep existing
+                        last_name: currentUser.last_name, // Keep existing
+                        phone_number: currentUser.phone_number // Keep existing
+                    })
+                });
+
+                const userData = await userResponse.json();
+
+                if (!userResponse.ok) {
+                    throw new Error(userData.error || 'Failed to update user profile');
+                }
+
+                // Update employer profile
+                const profileResponse = await fetch('/api/auth/profile/employer/update/', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + accessToken
+                    },
+                    body: JSON.stringify({
+                        company_name: document.getElementById('editCompanyName').value,
+                        position: document.getElementById('editPosition').value,
+                        company_website: document.getElementById('editCompanyWebsite').value,
+                        company_description: document.getElementById('editCompanyDescription').value
+                    })
+                });
+
+                const profileData = await profileResponse.json();
+
+                if (!profileResponse.ok) {
+                    throw new Error(profileData.error || 'Failed to update employer profile');
+                }
+
+                showAlert('Company profile updated successfully!', 'success');
+                toggleEditEmployerProfile(); // Switch back to view mode
+                loadEmployerProfileInfo(); // Refresh the profile display
+
+            } catch (error) {
+                console.error('Error updating employer profile:', error);
+                showAlert('Error updating company profile: ' + error.message, 'error');
+            }
+        }
+
+        // Update loadJobSeekerDashboard to ensure profile is loaded
+        async function loadJobSeekerDashboard() {
+            await loadProfileInfo();
+            await loadApplications();
+        }
+
+        // Update loadEmployerDashboard to include profile loading
+        async function loadEmployerDashboard() {
+            await loadEmployerProfileInfo();
+            await loadPostedJobs();
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.getElementById('alertContainer');
+            container.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
